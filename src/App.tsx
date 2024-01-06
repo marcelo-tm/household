@@ -1,3 +1,25 @@
+import { Route, Routes } from "react-router-dom";
+
+import LoginPage from "./pages/Login";
+import DashboardPage from "./pages/Dashboard";
+import SignUpPage from "./pages/SignUp";
+import NotFoundPage from "./pages/NotFound";
+import SignedOffLayout from "./components/layouts/SignedOffLayout";
+import SignedInLayout from "./components/layouts/SignedInLayout";
+
 export default function App() {
-  return <h1 className="text-3xl font-bold underline">Household starting!</h1>;
+  return (
+    <Routes>
+      <Route element={<SignedOffLayout />}>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="signup" element={<SignUpPage />} />
+      </Route>
+
+      <Route element={<SignedInLayout />}>
+        <Route path="dashboard" element={<DashboardPage />} />
+      </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
 }
