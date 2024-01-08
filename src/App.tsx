@@ -4,8 +4,8 @@ import LoginPage from "./pages/Login";
 import DashboardPage from "./pages/Dashboard";
 import SignUpPage from "./pages/SignUp";
 import NotFoundPage from "./pages/NotFound";
-import SignedOffLayout from "./components/layouts/SignedOffLayout";
-import SignedInLayout from "./components/layouts/SignedInLayout";
+import SignedOffLayout from "./layouts/SignedOffLayout";
+import SignedInLayout from "./layouts/SignedInLayout";
 
 export default function App() {
   return (

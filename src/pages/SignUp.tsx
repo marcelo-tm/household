@@ -1,16 +1,39 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { supabase } from "../lib/supabaseClient";
+import { Link } from "react-router-dom";
+
+const signUpSchema = z.object({
+  firstName: z.string().trim().min(1, { message: "Name is required." }),
+  lastName: z.string().trim().min(1, { message: "Name is required." }),
+  email: z.string().email("Email is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type SignUpSchemaType = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignUpSchemaType>({
+    resolver: zodResolver(signUpSchema),
+  });
 
-  async function signUpNewUser() {
+  async function handleSignUp(formData: SignUpSchemaType) {
+    const { firstName, lastName, email, password } = formData;
+
     const { data, error } = await supabase.auth.signUp({
-      email: "example@email.com",
-      password: "example-password",
+      email,
+      password,
       options: {
-        emailRedirectTo: "https//example.com/welcome",
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+        },
       },
     });
 
@@ -22,29 +45,55 @@ export default function SignUpPage() {
     <>
       <h1>Sign Up</h1>
 
-      <form>
+      <form onSubmit={handleSubmit(handleSignUp)} className="flex flex-col">
+        <label htmlFor="firstName">
+          <input
+            {...register("firstName")}
+            type="firstName"
+            id="firstName"
+            placeholder="First name"
+          />
+          {errors.firstName && <span>{errors.firstName.message}</span>}
+        </label>
+
+        <label htmlFor="lastName">
+          <input
+            {...register("lastName")}
+            type="lastName"
+            id="lastName"
+            placeholder="Last name"
+          />
+          {errors.lastName && <span>{errors.lastName.message}</span>}
+        </label>
+
         <label htmlFor="email">
           <input
-            type="text"
+            {...register("email")}
+            type="email"
             id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
           />
+          {errors.email && <span>{errors.email.message}</span>}
         </label>
 
         <label htmlFor="password">
           <input
+            {...register("password")}
             type="password"
             id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
           />
+          {errors.password && <span>{errors.password.message}</span>}
         </label>
 
-        <button type="button" onClick={signUpNewUser}>
-          Submit
+        <button type="submit" disabled={isSubmitting}>
+          Sign Up
         </button>
       </form>
+
+      <p>
+        Already have an account? <Link to="/">Click here to sign in!</Link>
+      </p>
     </>
   );
 }

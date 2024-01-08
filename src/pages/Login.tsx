@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { supabase } from "../lib/supabaseClient";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "react-router-dom";
 
 const signInSchema = z.object({
   email: z.string().email("Email is required"),
@@ -20,24 +21,26 @@ export default function LoginPage() {
     resolver: zodResolver(signInSchema),
   });
 
-  async function signInWithEmail(formData: SignInSchemaType) {
-    console.log(formData);
+  async function handleSignInWithEmail(formData: SignInSchemaType) {
+    const { email, password } = formData;
+
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: formData.email,
-      password: formData.password,
+      email,
+      password,
     });
 
     console.log("DATA", data);
     console.log("ERROR", error?.message);
   }
 
-  console.log("FORM ERRORS:", errors);
-
   return (
     <>
       <h1>Login</h1>
 
-      <form onSubmit={handleSubmit(signInWithEmail)}>
+      <form
+        onSubmit={handleSubmit(handleSignInWithEmail)}
+        className="flex flex-col"
+      >
         <label htmlFor="email">
           <input
             {...register("email")}
@@ -45,6 +48,7 @@ export default function LoginPage() {
             id="email"
             placeholder="Email"
           />
+          {errors.email && <span>{errors.email.message}</span>}
         </label>
 
         <label htmlFor="password">
@@ -54,12 +58,17 @@ export default function LoginPage() {
             id="password"
             placeholder="Password"
           />
+          {errors.password && <span>{errors.password.message}</span>}
         </label>
 
         <button type="submit" disabled={isSubmitting}>
-          Submit
+          Sign In
         </button>
       </form>
+
+      <p>
+        Don't have an account? <Link to="/signup">Click here to create!</Link>
+      </p>
     </>
   );
 }
